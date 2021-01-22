@@ -41,6 +41,12 @@ namespace CSV.Controllers
             return Index(records);
         }
 
+        public IActionResult GetInvalidRecordsToJson()
+        {
+            var invalidRecords = InvalidRecord.invalidRecords;
+            return Ok(new { results = invalidRecords });
+        }
+
         public IActionResult Export()
         {
             ExportInvalidRecords(InvalidRecord.invalidRecords);
