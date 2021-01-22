@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Acme Inc";
+    @model IEnumerable<Record>
+}
+
+    <div class="text-center">
+        <h1 class="display-4">Customer Statement Processor </h1>
+
+        <form asp-controller="Record" asp-action="Index" method="post" enctype="multipart/form-data">
+            <input type="file" class="input_file" name="file" id="file" accept=".csv, .xml" />
+            <hr />
+            <button id="upload_btn" type="submit">Upload</button>
+        </form>
+
+        @if (Model.Count() > 0)
+        {
+            <hr />
+            <div class="container">
+                <table class="record-table">
+                    <thead>
+                        <tr>
+                            <td>Reference</td>
+                            <td>Account Number</td>
+                            <td>Description</td>
+                            <td>Start Balance</td>
+                            <td>Mutation</td>
+                            <td>End Balance</td>
+                            <td>Note</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Record record in Model.OrderByDescending(i => i.IsValid))
+                        {
+                            <tr id="records" class="@(@record.IsValid == false ? "invalid_row" : "")">
+                                <td>@record.Reference</td>
+                                <td>@record.AccountNumber</td>
+                                <td>@record.Description</td>
+                                <td>@record.StartBalance</td>
+                                <td>@record.Mutation</td>
+                                <td>@record.EndBalance</td>
+                                <td>@record.Note</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <hr />
+            <!--temporarily disabled until solution is found-->
+            <!--<input type="button" id="export_btn" value="Export" title="Export" onclick="location.href='@Url.Action("Export")'" />-->
+        }
+    </div>
