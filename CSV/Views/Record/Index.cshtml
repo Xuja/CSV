@@ -6,7 +6,7 @@
     <div class="text-center">
         <h1 class="display-4">Customer Statement Processor </h1>
 
-        <form asp-controller="Record" asp-action="Index" method="post" enctype="multipart/form-data">
+        <form asp-controller="Record" asp-action="Index" method="post" enctype="multipart/form-data" autocomplete="off">
             <input type="file" class="input_file" name="file" id="file" accept=".csv, .xml" />
             <hr />
             <button id="upload_btn" type="submit">Upload</button>
