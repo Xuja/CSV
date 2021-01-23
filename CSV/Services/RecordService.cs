@@ -1,7 +1,7 @@
-﻿using CSV.Interface;
+﻿using CSP.Models;
+using CSV.Interface;
 using CSV.Models;
 using CsvHelper;
-using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -71,12 +71,83 @@ namespace CSV.Services
                     cw.NextRecord();
                 }
             }
-        }            
+        }
 
-        private String GetChildNodes(XmlNode node, String attribute)
+        public String GetChildNodes(XmlNode node, String attribute)
         {
             var value = node.ChildNodes.Cast<XmlNode>().Where(x => x.Name.ToString() == attribute).Select(n => n.InnerText).SingleOrDefault();
             return value;
+        }
+
+        public List<Record> GetRecordList(string fn)
+        {
+            List<Record> records = new List<Record>();
+            var fileName = $"{Directory.GetCurrentDirectory()}{@"/wwwroot/files"}" + "/" + fn;
+
+            var _recordService = new RecordService();
+
+            records = _recordService.ReadFile(fileName);
+
+            CheckValidity(records);
+
+            var invalidR = new List<Record>();
+
+            foreach (Record r in GetInvalidRecords(records))
+            {
+                invalidR.Add(r);
+            }
+
+            InvalidRecord.invalidRecords = invalidR;
+
+            return records;
+        }
+
+        public void CheckValidity(List<Record> records)
+        {
+            CheckBalanceValidity(records);
+            CheckReferenceValidity(records);
+        }
+
+        public void CheckBalanceValidity(List<Record> records)
+        {
+            foreach (Record r in records)
+            {
+                double total = r.StartBalance + r.Mutation;
+
+                String tb = total.ToString("#,##");
+                String eb = r.EndBalance.ToString("#,##");
+
+                String message = "[End Balance is not valid]";
+
+                if (tb == eb) r.IsValid = null;
+                else
+                {
+                    r.IsValid = false;
+                    r.Note += message;
+                }
+            }
+        }
+
+        public void CheckReferenceValidity(List<Record> records)
+        {
+            String message = "[Reference is not valid]";
+
+            var duplicate = records.GroupBy(x => x.Reference).Where(y => y.Count() > 1).Select(z => z.Key).ToList();
+
+            foreach (Record r in records)
+            {
+                if (duplicate.Contains(r.Reference))
+                {
+                    r.IsValid = false;
+                    r.Note += message;
+                }
+            }
+        }
+
+        public List<Record> GetInvalidRecords(List<Record> records)
+        {
+            var invalidRecords = records.Where(x => x.IsValid == false).ToList();
+            return invalidRecords;
         }
     }
 }
